@@ -10,12 +10,20 @@ print"*************************************************************"
 cruise = 'LabTest1607'
 
 # define the target folder depending on the computer ###################################
-# define the Wetlabs Triplet parameters
-# pull the computer name
-computer_name = os.environ['COMPUTERNAME']
+# find the operating system
+_platform = os.name
+# pull the computer name based on the operating system
+if _platform == 'posix': 
+	# MAC OSX
+	computer_name = os.uname()[1]
+elif _platform =='nt':
+	#windows 
+	computer_name = os.environ['COMPUTERNAME']
 # define the filepath and instrument input parameters depending on the computer
 if computer_name=='ZHEMCHUG':
     folderstr  = 'C:/Users/Public'
+elif computer_name == 'hekla.pmel.noaa.gov':
+	folderstr = '/Users/martini/UWGoogleDrive/RESEARCH'
 else:
     folderstr  = 'NONE_YET'
 
