@@ -6,26 +6,31 @@ import os
 print "SETTING SERIAL AND ARCHIVING PARAMETERS FOR DATA AQUISITION"
 print"*************************************************************"
 
-# define the cruise #################################
-cruise = 'LabTest1607'
 
-# define the target folder depending on the computer ###################################
-# find the operating system
-_platform = os.name
+# set up the output settings
+###################################
+output_settings = {}
+# define the cruise 
+output_settings['cruise'] = 'LabTest1607'
+
+# define the target folder
+
+_platform = os.name # find the operating system
 # pull the computer name based on the operating system
-if _platform == 'posix': 
-	# MAC OSX
-	computer_name = os.uname()[1]
-elif _platform =='nt':
-	#windows 
-	computer_name = os.environ['COMPUTERNAME']
-# define the filepath and instrument input parameters depending on the computer
-if computer_name=='ZHEMCHUG':
-    folderstr  = 'C:/Users/Public'
-elif computer_name == 'hekla.pmel.noaa.gov':
-	folderstr = '/Users/martini/UWGoogleDrive/RESEARCH'
+if _platform == 'posix': # MAC OSX
+	output_settings['computer_name'] = os.uname()[1]
+elif _platform =='nt': # WINDOWS
+	output_settings['computer_name'] =  os.environ['COMPUTERNAME']
+# define the filepath depending on the computer
+if output_settings['computer_name'] =='ZHEMCHUG':
+    output_settings['folder']  = 'C:/Users/Public'
+elif output_settings['computer_name'] == 'hekla.pmel.noaa.gov':
+	output_settings['folder']  = '/Users/martini/UWGoogleDrive/RESEARCH'
+elif output_settings['computer_name'] == 'Kims-MacBook-Air.local':
+    output_settings['folder']  = '/Users/Martini/UWGoogleDrive/RESEARCH'
 else:
-    folderstr  = 'NONE_YET'
+    output_settings['folder']  = []
+
 
 
 # serial port settings for instruments ###################################
