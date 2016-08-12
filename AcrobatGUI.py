@@ -2,14 +2,13 @@
 # filename: testGUI.py
 
 # pull in dependencies
-# from acrobat import *
 import Tkinter as tk
 import ttk as ttk
 from threading import Thread, Event
 import time, os, datetime, serial, os
 from serial import SerialException
 
-# Change the directory where python finds files
+# Change the directory where python finds files according to the computer
 if os.uname()[1] == 'hekla.pmel.noaa.gov':
 	os.chdir('/Users/martini/UWGoogleDrive/GitHub/acrobat')
 else:
@@ -28,9 +27,9 @@ serials = {}
 fs = {}
 start_time = []
 
-# define the class that makes the window
+# DEFINE THE CLASS THAT MAKES THE WINDOW ##############################
 class Window(tk.Frame):
-
+	# INITIALIZE THE GUI
 	def __init__(self, parent):
 		# inherit from tk.Frame
 		tk.Frame.__init__(self,parent)
@@ -39,26 +38,17 @@ class Window(tk.Frame):
 		# create the GUI with GUIinit
 		self.initUI()
 
-	# INITIALIZE THE GUI
-	##############################
+	# INITIALIZE THE GUI 
 	def initUI(self):
-		# CREATE AND PLACE THE WINDOW
-		##############################
+		# create and place the window
 		self.createWindow()
 		self.placeWindow()
 
-		# MAKE ENTRY FIELDS FOR WHERE DATA IS WRITTEN
-		##############################
-		# make an entry field for the folder
+		# make graphical frames to contain the entry fields
 		folderFrame = self.makeEntryField(self, 'ROOT FOLDER', output_settings['folder'])
-		# make an entry field for the cruise
 		cruiseFrame = self.makeEntryField(self, 'CRUISE', output_settings['cruise'])
-		#*****************************
-		# MOAR FRAMES BELOW
-		#*****************************
 
-		# MAKE THE CONTROL BUTTONS
-		#*****************************
+		# MAKE THE CONTROL BUTTONS 
 		# make a start button
 		startButton = tk.Button(self, text='START', command = self.startDataAcq)
 		startButton.pack(side = tk.LEFT, padx=25, pady=5, ipadx = 5, ipady=5)
@@ -69,14 +59,13 @@ class Window(tk.Frame):
 		quitButton = tk.Button(self, text='QUIT', command=self.quitDataAcq)
 		quitButton.pack(side=tk.LEFT, padx=25, pady=5, ipadx = 5, ipady=5)
 
-		# CREATE THE CONTROLLER FOR THE MULTIPLE THREADS
-		#*****************************
+		# CREATE THE CONTROLLER FOR THE MULTIPLE THREADS 
 		global control
 		control = Controller()
 
-	# FUNCTIONS TO CREATE THE MAIN GUI WINDOW
-	##############################
+	# FUNCTIONS TO CREATE THE MAIN GUI WINDOW ##############################
 	def createWindow(self):
+		""" create the main GUI window"""
 		# give the window a title
 		self.parent.title( 'Acrobat Data Acquisition')
 		# set the style
@@ -97,10 +86,8 @@ class Window(tk.Frame):
 		y = (sh-2*h)
 		self.parent.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
-
-	# CLASS TO MAKE A STANDARD ENTRY FIELD
-	##############################
 	class makeEntryField(tk.Frame):
+		""" Class to create a standardized text entry """
 		def __init__(self, parent, labelin, entryin):
 			# inherit from tk.Frame
 			tk.Frame.__init__(self, parent)
@@ -139,20 +126,16 @@ class Window(tk.Frame):
 			# confirm_dir(folderstr, cruise)
 			return newentry
 
-	# DATA ACQUSITION CONTROL 	##############################
+	# FUNCTIONS TO CONTROL DATA ACQUSITION CONTROL 	##############################
 	def startDataAcq(self):
 		"""Initialize the data acquisiton"""
 		global payload, control, output_settings, serials, fs
 		# INITIALIZE THE OUTPUT FOLDER STRUCTURE
 		check_dir(output_settings['folder'], output_settings['cruise'], payload)
 		confirm_dir(output_settings['folder'], output_settings['cruise'])
-		## run_data_acquisition(folderstr, cruise, serial_in, datalog_settings) ##
-		# print a start code
-		print_stop_instructions()
-		## 	fs, serINST, start_time = init_data_acquisition(serial_in) ##
 		# FIND THE START TIME
 		start_time = init_time()
-		# print it out 
+		# PRINT THE START TIME
 		print 'Local Time: ', time.ctime(start_time)
 		print 'UTC: ', time.asctime(time.gmtime(start_time))
 		print '--------------------------'
@@ -181,7 +164,6 @@ class Window(tk.Frame):
 			# pause get everything setup
 			time.sleep(1)
 		print serials
-
 		# start the loop 
 		control.combine()
 
@@ -199,7 +181,6 @@ class Window(tk.Frame):
 				close_datafile(fs[k])
 			else:
 				print 'nothing to close for '+k
-
 
 	def quitDataAcq(self):
 		"""close all processes and the window"""
@@ -227,10 +208,9 @@ class Controller(object):
 
 	def loop(self, k):
 		while not self.stop_threads.is_set():
-			# print self.threadnames[k]
+			print self.threadnames[k]
 			# LOG DATA HERE
 			log_data(self.threadnames[k])
-			time.sleep(1)
 
 	def combine(self):
 		# clear the command to stop
@@ -251,8 +231,7 @@ class Controller(object):
 			self.threads[i] = None
 
 
-
-# INITIALIZATION FUNCTIONS ##############################
+# DATA ACQUISITON INITIALIZATION FUNCTIONS ##############################
 def check_dir(folderstr, cruise, payload):
 	"""check if the cruise directory exists"""
 	if os.path.exists(folderstr+'/'+cruise):
@@ -268,12 +247,6 @@ def check_dir(folderstr, cruise, payload):
 def confirm_dir(folderstr, cruise):
 	"""print a confirmation of the folder """
 	print 'Data will be output to '+folderstr+'/'+cruise+"/DATA/ACROBAT/RAW"
-
-def print_stop_instructions():
-	"""Print out instructions to stop logging"""
-	print "*****************************************************************************"
-	print "To stop data collection select INTERRUPT from the KERNAL pull down menu above"
-	print "*****************************************************************************"
 
 def init_time():
 	""" define the time the script starts running """
@@ -370,7 +343,7 @@ def close_serial(ser):
 
 # acquire data ###################################
 def log_data(k):
-	global serials, fs, start_time
+	global serials, fs, datalog_settings
 	# print keyin
 	start_dat = start_time
 	print start_dat
@@ -394,8 +367,6 @@ def parse_serialline(ser, fs):
     print strout
     # write to file (remove last character so there is no extra carriage return and line feed)
     fs.write(strout[:-1])
-
-
 
 
 # WRAPPER FUNCTION THAT EXECUTES EVERYTHING ##############################
