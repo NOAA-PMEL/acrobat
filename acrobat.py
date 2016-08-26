@@ -4,32 +4,33 @@
 # Import the appropriate modules #################################
 import time, datetime, serial, os, threading
 import Tkinter as tk
+
 # pull in the predetermined instrument settings
 from acrobat_settings import *
 
 
 # initial settings ###################################
-def init_time():
-    """ define the time the script starts running """
-    starttime = time.time()
-    return starttime # return the start time
+# def init_time():
+#     """ define the time the script starts running """
+#     starttime = time.time()
+#     return starttime # return the start time
 
-def check_dir(folderstr, cruise, payload):
- 	"""check if the cruise directory exists"""
- 	if os.path.exists(folderstr+'/'+cruise):
- 		print 'File structure for cruise '+cruise+' already exists.'
- 	else:
- 		print 'Create new file directory for '+cruise+'.'
- 		os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/RAW')
- 		os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/PROCESSED')
- 		for k in payload.keys():
- 			if "name" in payload[k]:
- 				os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/RAW/'+payload[k]['name'])
+# def check_dir(folderstr, cruise, payload):
+#  	"""check if the cruise directory exists"""
+#  	if os.path.exists(folderstr+'/'+cruise):
+#  		print 'File structure for cruise '+cruise+' already exists.'
+#  	else:
+#  		print 'Create new file directory for '+cruise+'.'
+#  		os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/RAW')
+#  		os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/PROCESSED')
+#  		for k in payload.keys():
+#  			if "name" in payload[k]:
+#  				os.makedirs(folderstr+'/'+cruise+'/DATA/ACROBAT/RAW/'+payload[k]['name'])
  		
 
-def confirm_dir(folderstr, cruise):
-	"""print a confirmation of the folder """
-	print 'Data will be output to '+folderstr+'/'+cruise+"/DATA/ACROBAT/RAW"
+# def confirm_dir(folderstr, cruise):
+# 	"""print a confirmation of the folder """
+# 	print 'Data will be output to '+folderstr+'/'+cruise+"/DATA/ACROBAT/RAW"
 
 # serial ports ###################################
 def init_serial(instrument):
@@ -66,56 +67,56 @@ def close_serial(ser):
 # def check_serial(ser):
 
 # data files ###################################
-def init_datafile(folderstr, cruise, inst):
-    """ initialize and open the data file """
-    inst_name = inst['name']
-    # find the current directory
-    target_dir = '/'.join([folderstr, cruise, 'Data/Acrobat/RAW',inst_name])
-    print target_dir
-    # get all the files in the directory
-    files = os.listdir(target_dir)
-    # keep only the dat files
-    files = filter(lambda x: x[-4:]=='.dat', files)
+# def init_datafile(folderstr, cruise, inst):
+#     """ initialize and open the data file """
+#     inst_name = inst['name']
+#     # find the current directory
+#     target_dir = '/'.join([folderstr, cruise, 'Data/Acrobat/RAW',inst_name])
+#     print target_dir
+#     # get all the files in the directory
+#     files = os.listdir(target_dir)
+#     # keep only the dat files
+#     files = filter(lambda x: x[-4:]=='.dat', files)
     
-    # check if there are any .dat files
-    if len(files)==0:
-        make_new_datafile = 1
-    else:
-        # sort the files by date
-        files.sort(key = lambda x: os.stat(target_dir+'/'+x).st_mtime)
-        # pull the latest .dat file
-        latest_dat_file = files[-1]
-        print 'Latest .dat file: '+latest_dat_file
-        # if files more than an hour old
-        if time.time()-os.stat(target_dir+'/'+latest_dat_file).st_ctime >datalog_settings['file_length']:
-            make_new_datafile = 1
-        else:
-            make_new_datafile = 0
+#     # check if there are any .dat files
+#     if len(files)==0:
+#         make_new_datafile = 1
+#     else:
+#         # sort the files by date
+#         files.sort(key = lambda x: os.stat(target_dir+'/'+x).st_mtime)
+#         # pull the latest .dat file
+#         latest_dat_file = files[-1]
+#         print 'Latest .dat file: '+latest_dat_file
+#         # if files more than an hour old
+#         if time.time()-os.stat(target_dir+'/'+latest_dat_file).st_ctime >datalog_settings['file_length']:
+#             make_new_datafile = 1
+#         else:
+#             make_new_datafile = 0
         
-    if make_new_datafile == 1:
-        # make a new file
-        print 'Last file created more than an hour ago, creating new file....'
-        # find the current time and write as string
-        current_time = time.strftime("%Y_%m_%d_%H%M", time.gmtime(time.time()))
-        # give it a name
-        filestr = current_time+cruise+inst['name']+'RAW.dat' # concatenates strings using 
-        print 'Creating '+filestr
-        #define write to the new file
-        write_mode = 'w'
-    elif make_new_datafile == 0:
-        # Open file made within the last hour
-        filestr = latest_dat_file
-        print 'Opening and appending '+latest_dat_file
-        # define appending the old file
-        write_mode = 'a'
+#     if make_new_datafile == 1:
+#         # make a new file
+#         print 'Last file created more than an hour ago, creating new file....'
+#         # find the current time and write as string
+#         current_time = time.strftime("%Y_%m_%d_%H%M", time.gmtime(time.time()))
+#         # give it a name
+#         filestr = current_time+cruise+inst['name']+'RAW.dat' # concatenates strings using 
+#         print 'Creating '+filestr
+#         #define write to the new file
+#         write_mode = 'w'
+#     elif make_new_datafile == 0:
+#         # Open file made within the last hour
+#         filestr = latest_dat_file
+#         print 'Opening and appending '+latest_dat_file
+#         # define appending the old file
+#         write_mode = 'a'
 
-    # now set the target 
-    targetstr = '/'.join([folderstr,cruise,'Data/Acrobat/RAW',inst_name,filestr]) # concatencates strings using join
+#     # now set the target 
+#     targetstr = '/'.join([folderstr,cruise,'Data/Acrobat/RAW',inst_name,filestr]) # concatencates strings using join
 
-    # open the text file
-    fs = open(targetstr, write_mode)
+#     # open the text file
+#     fs = open(targetstr, write_mode)
 
-    return fs # return the file id
+#     return fs # return the file id
 
 def close_datafile(fs):
     """close the text file"""
@@ -170,31 +171,31 @@ def parse_serialdata(ser, fs):
     # write to file (remove last character so there is no extra carriage return and line feed)
     fs.write(strout[:-1])
 
-def init_data_acquisition(ser):
-	"""Initialize data aquisition from serial port"""
-	# find the start timeS
-	start_time = init_time()
-	# print it out 
-	print 'Local Time: ', time.ctime(start_time)
-	print 'UTC: ', time.asctime(time.gmtime(start_time))
-	print '--------------------------'
+# def init_data_acquisition(ser):
+# 	"""Initialize data aquisition from serial port"""
+# 	# find the start timeS
+# 	start_time = init_time()
+# 	# print it out 
+# 	print 'Local Time: ', time.ctime(start_time)
+# 	print 'UTC: ', time.asctime(time.gmtime(start_time))
+# 	print '--------------------------'
 
-	global serINST
-	# check to see if a serial port is already open
-	if 'serINST' in globals():
-		if serINST.isOpen():
-			# close the serial port
-			close_serial(serINST)
-	# now open the correct serial port
-	serINST = init_serial( ser )
-	# print the serial port info
-	print serINST
-	print '--------------------------'
-	# open the data file
-	fs = init_datafile(folderstr, cruise, ser)
-	# read one line because the first one after opening a port is usually gibberish
-	line = serINST.readline()
-	return fs, serINST, start_time
+# 	global serINST
+# 	# check to see if a serial port is already open
+# 	if 'serINST' in globals():
+# 		if serINST.isOpen():
+# 			# close the serial port
+# 			close_serial(serINST)
+# 	# now open the correct serial port
+# 	serINST = init_serial( ser )
+# 	# print the serial port info
+# 	print serINST
+# 	print '--------------------------'
+# 	# open the data file
+# 	fs = init_datafile(folderstr, cruise, ser)
+# 	# read one line because the first one after opening a port is usually gibberish
+# 	line = serINST.readline()
+# 	return fs, serINST, start_time
 
 
 # GPS functions ############################################
